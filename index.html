@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ナンバーズ予想アプリ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>ナンバーズ予想アプリ</h1>
+  <div class="game-switch">
+    <label><input type="radio" name="gameType" value="numbers4" checked> ナンバーズ4</label>
+    <label><input type="radio" name="gameType" value="numbers3"> ナンバーズ3</label>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="input">データ入力</button>
+  <button class="tab-btn" data-tab="list">データ一覧</button>
+  <button class="tab-btn" data-tab="analysis">分析</button>
+  <button class="tab-btn" data-tab="predict">予測</button>
+</nav>
+
+<main>
+  <!-- データ入力 -->
+  <section id="tab-input" class="tab-panel active">
+    <h2>当せん番号を登録</h2>
+    <form id="manual-form">
+      <label>回号 <input type="number" id="f-round" min="1" required></label>
+      <label>抽選日 <input type="date" id="f-date" required></label>
+      <label>当せん番号 <input type="text" id="f-number" inputmode="numeric" placeholder="例: 1234" required></label>
+      <button type="submit">登録</button>
+    </form>
+    <p class="hint" id="input-hint"></p>
+
+    <h2>CSVで一括インポート</h2>
+    <p class="hint">
+      1行につき「回号,抽選日(YYYY-MM-DD),当せん番号」の形式のCSVを読み込みます。ヘッダー行があっても自動でスキップします。<br>
+      例: <code>6543,2026-06-30,1234</code>
+    </p>
+    <input type="file" id="csv-file" accept=".csv,text/csv">
+    <div id="csv-import-result" class="hint"></div>
+
+    <h2>バックアップ・公開用データの更新</h2>
+    <p class="hint">
+      書き出したCSVを <code>public-data/numbers3.csv</code> または <code>public-data/numbers4.csv</code> に上書きしてgitでpushすると、公開サイトを見ている全員のデータが更新されます。
+    </p>
+    <button id="export-csv-btn">現在のデータをCSVで書き出す</button>
+  </section>
+
+  <!-- データ一覧 -->
+  <section id="tab-list" class="tab-panel">
+    <h2>登録済みデータ一覧 <span id="list-count"></span></h2>
+    <table id="data-table">
+      <thead><tr><th>回号</th><th>抽選日</th><th>当せん番号</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- 分析 -->
+  <section id="tab-analysis" class="tab-panel">
+    <h2>桁ごとの出現頻度</h2>
+    <p class="hint">ナンバーズは桁ごとに独立して抽選されるため、桁ごとの出現回数を分析します。</p>
+    <div id="digit-charts"></div>
+
+    <h2>数字全体の出現頻度(桁を区別しない合計)</h2>
+    <div id="overall-chart"></div>
+
+    <h2>直近<span id="recent-n-label"></span>回のホット/コールドナンバー</h2>
+    <div class="hotcold-wrap">
+      <div>
+        <h3>ホットナンバー(よく出ている数字)</h3>
+        <div id="hot-list"></div>
+      </div>
+      <div>
+        <h3>コールドナンバー(出ていない期間が長い数字)</h3>
+        <div id="cold-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 予測 -->
+  <section id="tab-predict" class="tab-panel">
+    <h2>予測(参考情報)</h2>
+    <p class="disclaimer">
+      ⚠️ この予測は過去データの統計的な傾向を元にした参考情報であり、当選を保証するものではありません。宝くじの結果は本質的にランダムです。
+    </p>
+    <button id="regenerate-btn">予測を生成する</button>
+
+    <h3>桁別頻度トップ予想(決定的)</h3>
+    <div id="predict-top" class="predict-box"></div>
+
+    <h3>直近重み付きスコア予想(決定的)</h3>
+    <div id="predict-weighted" class="predict-box"></div>
+
+    <h3>重み付きランダム候補(5点)</h3>
+    <div id="predict-random" class="predict-box"></div>
+  </section>
+</main>
+
+<script src="storage.js"></script>
+<script src="analysis.js"></script>
+<script src="predict.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
