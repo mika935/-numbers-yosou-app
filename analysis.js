@@ -30,7 +30,7 @@ const Analysis = (() => {
 
   // 直近を重視した桁ごとのスコア (entriesは回号降順=直近が先頭という前提)
   // weight = decay^rank (rank 0 が最新)
-  function recencyWeightedPositionScore(entries, len, decay = 0.97) {
+  function recencyWeightedPositionScore(entries, len, decay = 0.99) {
     const result = Array.from({ length: len }, () => {
       const o = {};
       for (let d = 0; d <= 9; d++) o[d] = 0;

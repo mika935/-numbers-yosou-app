@@ -10,7 +10,7 @@ const Predict = (() => {
     return result;
   }
 
-  function weightedScoreNumber(entries, len, decay = 0.97) {
+  function weightedScoreNumber(entries, len, decay = 0.99) {
     const scores = Analysis.recencyWeightedPositionScore(entries, len, decay);
     let result = "";
     for (let pos = 0; pos < len; pos++) {
@@ -34,7 +34,7 @@ const Predict = (() => {
     return entries[entries.length - 1][0];
   }
 
-  function weightedRandomNumbers(entries, len, count = 5, decay = 0.97) {
+  function weightedRandomNumbers(entries, len, count = 5, decay = 0.99) {
     const scores = Analysis.recencyWeightedPositionScore(entries, len, decay);
     const results = new Set();
     let attempts = 0;
