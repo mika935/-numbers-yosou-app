@@ -49,5 +49,60 @@ const Predict = (() => {
     return Array.from(results);
   }
 
-  return { topFrequencyNumber, weightedScoreNumber, weightedRandomNumbers };
+  // ---- ロト6専用 ----
+  // 1〜43から6個選ぶ形式なので、桁ごとではなく「スコア上位6個」「重み付き無作為抽出(重複なし)6個」で予想する
+  function topFrequencyNumbersLoto6(entries, pickCount = 6) {
+    const freq = Analysis.loto6NumberFrequency(entries);
+    return Object.entries(freq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, pickCount)
+      .map(([n]) => Number(n))
+      .sort((a, b) => a - b);
+  }
+
+  function weightedScoreNumbersLoto6(entries, pickCount = 6, decay = 0.99) {
+    const scores = Analysis.loto6RecencyWeightedScore(entries, decay);
+    return Object.entries(scores)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, pickCount)
+      .map(([n]) => Number(n))
+      .sort((a, b) => a - b);
+  }
+
+  // scoreMapから重複なしでpickCount個を重み付き無作為抽出する(1セット分)
+  function weightedRandomSetLoto6(scoreMap, pickCount = 6) {
+    const pool = Object.entries(scoreMap).map(([n, s]) => [Number(n), s]);
+    const picked = [];
+    for (let i = 0; i < pickCount && pool.length > 0; i++) {
+      const total = pool.reduce((sum, [, s]) => sum + s, 0);
+      let idx;
+      if (total <= 0) {
+        idx = Math.floor(Math.random() * pool.length);
+      } else {
+        let r = Math.random() * total;
+        idx = pool.length - 1;
+        for (let j = 0; j < pool.length; j++) {
+          r -= pool[j][1];
+          if (r <= 0) { idx = j; break; }
+        }
+      }
+      picked.push(pool[idx][0]);
+      pool.splice(idx, 1);
+    }
+    return picked.sort((a, b) => a - b);
+  }
+
+  function weightedRandomSetsLoto6(entries, setCount = 5, pickCount = 6, decay = 0.99) {
+    const scores = Analysis.loto6RecencyWeightedScore(entries, decay);
+    const results = [];
+    for (let i = 0; i < setCount; i++) {
+      results.push(weightedRandomSetLoto6(scores, pickCount));
+    }
+    return results;
+  }
+
+  return {
+    topFrequencyNumber, weightedScoreNumber, weightedRandomNumbers,
+    topFrequencyNumbersLoto6, weightedScoreNumbersLoto6, weightedRandomSetsLoto6,
+  };
 })();

@@ -178,3 +178,5 @@ table#data-table button:hover { background: #8f2e2e; }
   border-radius: 6px;
 }
 .empty-note { color: #888; font-size: 0.85rem; }
+
+.predict-number.loto { letter-spacing: normal; display: block; margin-bottom: 8px; }

@@ -12,6 +12,7 @@
   <div class="game-switch">
     <label><input type="radio" name="gameType" value="numbers4" checked> ナンバーズ4</label>
     <label><input type="radio" name="gameType" value="numbers3"> ナンバーズ3</label>
+    <label><input type="radio" name="gameType" value="loto6"> ロト6</label>
   </div>
 </header>
 
@@ -29,13 +30,15 @@
     <form id="manual-form">
       <label>回号 <input type="number" id="f-round" min="1" required></label>
       <label>抽選日 <input type="date" id="f-date" required></label>
-      <label>当せん番号 <input type="text" id="f-number" inputmode="numeric" placeholder="例: 1234" required></label>
+      <label id="f-number-label">当せん番号 <input type="text" id="f-number" inputmode="numeric" placeholder="例: 1234" required></label>
+      <label id="f-loto-numbers-label" style="display:none;">本数字(6個、カンマ区切り) <input type="text" id="f-loto-numbers" placeholder="例: 1,5,12,23,34,41"></label>
+      <label id="f-loto-bonus-label" style="display:none;">ボーナス数字 <input type="number" id="f-loto-bonus" min="1" max="43"></label>
       <button type="submit">登録</button>
     </form>
     <p class="hint" id="input-hint"></p>
 
     <h2>CSVで一括インポート</h2>
-    <p class="hint">
+    <p class="hint" id="csv-hint">
       1行につき「回号,抽選日(YYYY-MM-DD),当せん番号」の形式のCSVを読み込みます。ヘッダー行があっても自動でスキップします。<br>
       例: <code>6543,2026-06-30,1234</code>
     </p>
@@ -44,7 +47,7 @@
 
     <h2>バックアップ・公開用データの更新</h2>
     <p class="hint">
-      書き出したCSVを <code>public-data/numbers3.csv</code> または <code>public-data/numbers4.csv</code> に上書きしてgitでpushすると、公開サイトを見ている全員のデータが更新されます。
+      書き出したCSVを <code>public-data/numbers3.csv</code>、<code>public-data/numbers4.csv</code> または <code>public-data/loto6.csv</code> に上書きしてgitでpushすると、公開サイトを見ている全員のデータが更新されます。
     </p>
     <button id="export-csv-btn">現在のデータをCSVで書き出す</button>
   </section>
@@ -53,18 +56,18 @@
   <section id="tab-list" class="tab-panel">
     <h2>登録済みデータ一覧 <span id="list-count"></span></h2>
     <table id="data-table">
-      <thead><tr><th>回号</th><th>抽選日</th><th>当せん番号</th><th></th></tr></thead>
+      <thead id="data-table-head"><tr><th>回号</th><th>抽選日</th><th>当せん番号</th><th></th></tr></thead>
       <tbody></tbody>
     </table>
   </section>
 
   <!-- 分析 -->
   <section id="tab-analysis" class="tab-panel">
-    <h2>桁ごとの出現頻度</h2>
-    <p class="hint">ナンバーズは桁ごとに独立して抽選されるため、桁ごとの出現回数を分析します。</p>
+    <h2 id="digit-charts-title">桁ごとの出現頻度</h2>
+    <p class="hint" id="digit-charts-hint">ナンバーズは桁ごとに独立して抽選されるため、桁ごとの出現回数を分析します。</p>
     <div id="digit-charts"></div>
 
-    <h2>数字全体の出現頻度(桁を区別しない合計)</h2>
+    <h2 id="overall-chart-title">数字全体の出現頻度(桁を区別しない合計)</h2>
     <div id="overall-chart"></div>
 
     <h2>直近<span id="recent-n-label"></span>回のホット/コールドナンバー</h2>
@@ -78,6 +81,14 @@
         <div id="cold-list"></div>
       </div>
     </div>
+
+    <h2 id="pair-section-title" style="display:none;">よく出る数字の組み合わせ(ペア)</h2>
+    <p class="hint" id="pair-section-hint" style="display:none;">同じ抽選回に一緒に出現した回数が多いペアを集計します。</p>
+    <div id="pair-list"></div>
+
+    <h2 id="balance-section-title" style="display:none;">奇数/偶数・高い/低い数字のバランス傾向</h2>
+    <p class="hint" id="balance-section-hint" style="display:none;">本数字6個のうち、奇数がいくつ含まれるか・高い数字(22〜43)がいくつ含まれるかを回ごとに集計します。</p>
+    <div id="balance-charts"></div>
   </section>
 
   <!-- 予測 -->
@@ -88,13 +99,13 @@
     </p>
     <button id="regenerate-btn">予測を生成する</button>
 
-    <h3>桁別頻度トップ予想(決定的)</h3>
+    <h3 id="predict-top-title">桁別頻度トップ予想(決定的)</h3>
     <div id="predict-top" class="predict-box"></div>
 
-    <h3>直近重み付きスコア予想(決定的)</h3>
+    <h3 id="predict-weighted-title">直近重み付きスコア予想(決定的)</h3>
     <div id="predict-weighted" class="predict-box"></div>
 
-    <h3>重み付きランダム候補(5点)</h3>
+    <h3 id="predict-random-title">重み付きランダム候補(5点)</h3>
     <div id="predict-random" class="predict-box"></div>
   </section>
 </main>
